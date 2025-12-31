@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+</head>
+
+<body>
+    <button id="new-game" class="button1">Nueva partida</button>
+    <form action="" id="search-form" class="form1 sin">
+        <label for="letter">Letra</label>
+        <input type="text" name="letter" id="letter" maxlength="1" class="input-box">
+        <button id="buscar" class="button2">Buscar</button>
+    </form>
+    <button id="resolver" class="button2 sin">Resolver</button>
+    <p id="panel" class="panel"></p>
+    <p id="pista" class="pista"></p>
+    <dialog id="pop">
+        <form action="" id="form1" >
+            <label for="guess">Frase</label>
+            <input type="text" name="guess" id="guess">
+            <label for="guess">Pista</label>
+            <input type="text" name="clue" id="clue">
+            <button id="aceptar">Aceptar</button>
+        </form>
+    </dialog>
+    <p class="letra5" id="letras2"></p>
+    <p id="letras" class="letra5"></p>
+    <script>
+
+        const newGame = document.getElementById("new-game")
+        const form1 = document.getElementById("form1")
+        const searchForm = document.getElementById("search-form")
+        const dialog = document.getElementById("pop")
+        const guess = document.getElementsByName("guess")
+        const pista = document.getElementById("pista")
+        const clue = document.getElementsByName("clue")
+        const aceptar = document.getElementById("aceptar")
+        const buscar = document.getElementById("buscar")
+        const resolver = document.getElementById("resolver")
+        const letter = document.getElementById("letter")
+        const letras = document.getElementById("letras")
+        const letras2 = document.getElementById("letras2")
+
+        let panel2 = null
+        let panel3 = null
+        let panel4 = []
+
+        newGame.addEventListener("click", () => {
+            dialog.showModal();
+        })
+
+        resolver.addEventListener("click", () => {
+            panel.innerText = panel2.join().replaceAll(",", "")
+        })
+        form1.addEventListener("submit", e => {
+            dialog.close();
+            e.preventDefault()
+            const data = Object.fromEntries(new FormData(e.target))
+            let fraseUpper = data.guess.toUpperCase()
+            panel2 = fraseUpper.split('')
+            panel3 = [...panel2]
+            
+            let pistaUpper = data.clue.toUpperCase()
+            pista.innerText = pistaUpper
+            for (let index = 0; index < panel2.length; index++) {
+                const element = panel2[index];
+                if (element != ' ')
+                    panel3[index] = '_'
+            }
+
+            panel.innerText = panel3.join().replaceAll(",", "")
+            letras2.innerText = "Letras falladas:"
+
+            resolver.classList.remove('sin')
+            searchForm.classList.remove('sin')
+
+        })
+
+        searchForm.addEventListener("submit", e => {
+            e.preventDefault()
+            let letraEncontrada = false
+            const data = Object.fromEntries(new FormData(e.target))
+            let letraUpper = data.letter.toUpperCase()
+            for (let index = 0; index < panel2.length; index++) {
+                const element = panel2[index];
+                if (element == letraUpper) {
+                    panel3[index] = letraUpper
+                }
+            }
+            panel.innerText = panel3.join().replaceAll(",", "")
+
+            letraEncontrada = panel3.includes(letraUpper)
+            if (!letraEncontrada && !panel4.includes(letraUpper)) {
+                panel4.push(letraUpper)
+            }
+            letras.innerText = panel4
+            letter.value = ""
+        })
+
+    </script>
+</body>
+
+</html>
+<style>
+    .panel {
+        letter-spacing: 15px;
+    }
+
+    body {
+        margin: 0cm;
+        padding: 10px;
+        text-align: center;
+    }
+
+    :root {
+
+        background: linear-gradient(rgba(255, 255, 255, 0.652)),
+            url(f.elconfidencial.com_original_070_d1c_c8c_070d1cc8cbb1b4dff05bfa590f937873.jpg);
+        font-weight: bold;
+        font-family: "Roboto";
+    }
+
+    .button1 {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, .6);
+        width: 25%;
+        padding: 15px;
+        background-color: transparent;
+    }
+
+    .button1:hover {
+        background-color: rgba(15, 194, 39, 0.562);
+    }
+
+    .button2 {
+        width: 15%;
+        padding: 10px;
+        margin-left: 15px;
+        background-color: transparent;
+    }
+
+    .button2:hover {
+        background-color: rgba(15, 194, 39, 0.562);
+    }
+
+    .form1 {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        padding: 15px;
+        font-size: xx-large;
+        height: 25%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .sin {
+        visibility: hidden;
+    }
+
+    .input-box {
+        font-size: xx-large;
+        margin-left: 15px;
+        border-bottom: 5% black;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        background-color: transparent;
+    }
+
+    .panel {
+        font-size: 400%;
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+
+    .letra5 {
+        font-size: 200%;
+    }
+
+    .pista {
+        font-size: 200%;
+    }
+</style>
