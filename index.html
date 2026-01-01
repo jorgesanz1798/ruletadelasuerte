@@ -5,107 +5,341 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://kit.fontawesome.com/3c0e78b82b.js" crossorigin="anonymous"></script> 
+    <script> 
+    // $(function(){
+    //  $("#includedContent").load("señorSaltimbanqui.html"); 
+    //  $("#includedContent").load("ruletaPuntos.html");
+    //});
+    </script> 
 
 </head>
 
 <body>
-    <button id="new-game" class="button1">Nueva partida</button>
-    <form action="" id="search-form" class="form1 sin">
-        <label for="letter">Letra</label>
+    <!Boton de nueva partida>
+    <button onclick=showStartGame() id="new-game" class="button1 liquid1">Nueva partida</button>
+    <!Boton para editar nombre jugadores>
+    <button onclick=editPlayers() id="edit-players" class="buttonEdit liquid2">Editar jugadores</button>
+
+    <div class="container">
+        <div class="playerOnePoints">
+            <h2 id="namePlayerOne"></h2>
+            <h2 class="counter">0</h2>
+        </div>
+        <h2 id="namePlayerTwo"></h1>
+        <h2 id="namePlayerThree"></h1>
+    </div>
+
+    <!busqueda y comprobación de letra, "sin" es para ocultar el texto hasta empezar la partida>
+    <form action="" id="search-form" class="formStart sin">
+        <label for="letter" class="letraDisp">Letra</label>
         <input type="text" name="letter" id="letter" maxlength="1" class="input-box">
         <button id="buscar" class="button2">Buscar</button>
     </form>
-    <button id="resolver" class="button2 sin">Resolver</button>
+
+    <button id="resolver" class="buttonRes sin">Resolver</button>
+
+    <!"panel" muestra: letra, buscar y resolver>
     <p id="panel" class="panel"></p>
+    <!"pista" muestra la pista excrita anteriormente>
     <p id="pista" class="pista"></p>
+
+    <!Dialog crea el juego en si, dando las opciones de escribir el panel y la pista>
     <dialog id="pop">
-        <form action="" id="form1" >
-            <label for="guess">Frase</label>
-            <input type="text" name="guess" id="guess">
-            <label for="guess">Pista</label>
-            <input type="text" name="clue" id="clue">
-            <button id="aceptar">Aceptar</button>
-        </form>
+        <div class="wrapper">
+            <form action="" id="formStart" >
+                <div class="grid">
+                <label for="guess">Frase</label>
+                <input type="text" name="guess" id="guess">
+                <input id="checkbox" type="checkbox" class="toggleVis sin" onclick=toggleVisibility()>
+                <label for="checkbox" class="eyeLabel sin" id="eyeLabel"></label>
+                </div>
+                <label for="clue"><br/>Pista</label>
+                <input type="text" name="clue" id="clue"><br/>
+                <button id="aceptar" class="btn liquidA">
+                    <span>Aceptar</span>
+                </button>
+                <button onclick=closeStartDialog() type="button" class="btn liquidC">
+                    <span>X</span>
+                </button>
+            </form>
+        </div>
     </dialog>
-    <p class="letra5" id="letras2"></p>
-    <p id="letras" class="letra5"></p>
+    <dialog id="popPlayers">
+            <form action="" id="playerForm">
+                <input type="text" id="player-one" value="Jugador 1"><br>
+                <input type="text" id="player-two" value="Jugador 2"><br>
+                <input type="text" id="player-three" value="Jugador 3"><br>
+                <button onclick=closeEditPlayers() type="button" class="btn liquidCF">
+                    <span>Confirmar</span>
+                </button>
+            </form>
+    </dialog>
+    <p id="letras2" class="letrasPista"></p>
+    <!Esto muestra las letras falladas y quita la letra escrita anteriormente>
+    <p id="letras"  class="letrasFail"></p>
+
+    <!Ruleta
+    <div class="counterOne">
+    0
+    </div>
+    <div class="counterTwo">
+    0
+    </div>
+    <div class="pie" style="--s: 17">
+
+        <div class="slice"  style="--c: #f3722c; --v: 1; --i: 9 " >
+        <button class="button" data-action="increase" id="cienRuleta" style="rotate: 200grad">100€</button>
+        </div>
+
+        <div class="slice" style="--c: #000000; --v: 1; --i: 10">
+        <button class="button" data-action="reset" id="quiebra" style="rotate: 200grad; font-size: 1.2rem; color: rgb(255, 255, 255)">QUIEBRA</button>
+        </div>
+
+        <div class="slice" style="--c: #f9c74f; --v: 1; --i: 11">
+        <p style="rotate: 200grad;">25€</p>
+        </div>
+        <div class="slice" style="--c: #90be6d; --v: 1; --i: 12">
+        <p style="rotate: 200grad; font-size: 1.2rem; color: rgb(255, 255, 255)">COMODÍN</p></div>
+        <div class="slice" style="--c: #43aa8b; --v: 1; --i: 13"></div>
+        <div class="slice" style="--c: #577590; --v: 1; --i: 14"></div>
+        <div class="slice" style="--c: #577590; --v: 1; --i: 15"></div>
+    </div>
+    <!div id="includedContent" class="señorSaltimbanqui"></div>
+    
     <script>
 
         const newGame = document.getElementById("new-game")
-        const form1 = document.getElementById("form1")
+        const dialogStart = document.getElementById("pop")
+        const dialogPlayer = document.getElementById("popPlayers")
+        const formStart = document.getElementById("formStart")
         const searchForm = document.getElementById("search-form")
-        const dialog = document.getElementById("pop")
-        const guess = document.getElementsByName("guess")
+        const playerForm = document.getElementById("playerForm")
+        
+        const playerNameOne = document.getElementById("player-one")
+        const playerNameTwo = document.getElementById("player-two")
+        const playerNameThree = document.getElementById("player-three")
+
+        const namePlayerOne = document.getElementById("namePlayerOne")
+        const namePlayerTwo = document.getElementById("namePlayerTwo")
+        const namePlayerThree = document.getElementById("namePlayerThree")
+
+        const guess = document.getElementById("guess")
         const pista = document.getElementById("pista")
         const clue = document.getElementsByName("clue")
         const aceptar = document.getElementById("aceptar")
+        
+        const slashEye = document.getElementById("eyeBtnSlash")
+        const eyeBtn = document.getElementById("eyeBtn")
+
         const buscar = document.getElementById("buscar")
         const resolver = document.getElementById("resolver")
-        const letter = document.getElementById("letter")
-        const letras = document.getElementById("letras")
-        const letras2 = document.getElementById("letras2")
+        const letter = document.getElementById("letter") //letra que se escribe para intentar acertar
+        const letras = document.getElementById("letras") //letras encontradas
+        const letras2 = document.getElementById("letras2") //letras falladas
+
+        const toggleVis = document.getElementById("checkbox")
+        const eyeLabel = document.getElementById("eyeLabel")
+
+        const wrapper = document.querySelector(".wrapper") // para cerrar el dialog haciendo click en la pantalla
 
         let panel2 = null
         let panel3 = null
         let panel4 = []
 
-        newGame.addEventListener("click", () => {
-            dialog.showModal();
+        let playersPoint = [playerNameOne.value,playerNameTwo.value, playerNameThree.value]
+        //const restartPage = () => location.reload()
+        //const popStart = () => dialog.showModal()
+
+        function editPlayers() {
+            dialogPlayer.showModal()
+        }
+        function closeEditPlayers(){
+            dialogPlayer.close()
+        }
+        
+        
+
+        function showStartGame(){
+            dialogStart.showModal()
+            
+        }
+
+        function closeStartDialog(){
+            dialogStart.close()
+        }
+
+
+        dialogStart.addEventListener("click", (e) => {
+            if(!wrapper.contains(e.target)){
+                dialogStart.close()
+            }
+        })
+        
+        //funcion para que la frase se esconda al empezar la partida en el dialog de empezar partida
+        function toggleVisibility() {
+            var x = document.getElementById("guess");
+            if (x.type === "password") {
+                x.type = "text";
+            } else {
+                x.type = "password";
+            }
+        }
+        //contador de puntos
+        const counter = document.querySelector(".counter");
+        const buttons = document.querySelectorAll(".button");
+
+        let count = 0;
+
+        
+        for (let i = 0; i < buttons.length; i++){
+            const btn = buttons[i];
+
+            btn.addEventListener("click", handleAction);
+        }
+
+        function handleAction (evt) {
+            const action = evt.target.dataset.action;
+
+            if (action == "increase") {
+            count += 100
+            } else if (action == "reset"){
+            count=0
+            }
+            counter.innerText = count;
+        }
+        
+        //Empieza el juego mostrando el panel para esribir la frase y la pista
+        //newGame.addEventListener("click", () => {
+            //    popStart();
+        //})
+        
+        
+        //Boton de resolver
+        resolver.addEventListener("click", () => {
+            panel.innerText = panel2.join("")
         })
 
-        resolver.addEventListener("click", () => {
-            panel.innerText = panel2.join().replaceAll(",", "")
-        })
-        form1.addEventListener("submit", e => {
-            dialog.close();
+        //funcion que cambia el nombre de los jugadores//
+        document.getElementById("namePlayerOne").textContent = document.getElementById("player-one").value
+        document.getElementById("namePlayerTwo").textContent = document.getElementById("player-two").value
+        document.getElementById("namePlayerThree").textContent = document.getElementById("player-three").value
+        //Jugador 1
+        playerNameOne.addEventListener("input", updateValue1)
+         
+        function updateValue1(e) {
+                namePlayerOne.textContent = e.target.value;
+            }
+        //Jugador 2
+        playerNameTwo.addEventListener("input", updateValue2)
+
+        function updateValue2(e) {
+                namePlayerTwo.textContent = e.target.value;
+            }
+         
+        
+        //Jugador 3
+        playerNameThree.addEventListener("input", updateValue3)
+
+        function updateValue3(e) {
+                namePlayerThree.textContent = e.target.value;
+            }
+
+
+        //Comienzo juego
+        formStart.addEventListener("submit", e => {
+            document.getElementById("guess").type = "password"
+            
+            eyeLabel.classList.remove('sin')
+            dialogStart.close();
+            //document.getElementById("edit-players").classList = "buttonEdit sin"
             e.preventDefault()
             const data = Object.fromEntries(new FormData(e.target))
             let fraseUpper = data.guess.toUpperCase()
             panel2 = fraseUpper.split('')
             panel3 = [...panel2]
             
+            
             let pistaUpper = data.clue.toUpperCase()
             pista.innerText = pistaUpper
             for (let index = 0; index < panel2.length; index++) {
                 const element = panel2[index];
                 if (element != ' ')
-                    panel3[index] = '_'
+                panel3[index] = '_'
+                if (element == ',')
+                panel3[index] = ','
             }
-
-            panel.innerText = panel3.join().replaceAll(",", "")
+            
+            
+            panel.innerText = panel3.join("")
             letras2.innerText = "Letras falladas:"
-
+            
             resolver.classList.remove('sin')
             searchForm.classList.remove('sin')
-
+            
+            console.log(namePlayerOne.innerHTML)
+            
         })
+        
+       
 
         searchForm.addEventListener("submit", e => {
             e.preventDefault()
             let letraEncontrada = false
             const data = Object.fromEntries(new FormData(e.target))
             let letraUpper = data.letter.toUpperCase()
+            
             for (let index = 0; index < panel2.length; index++) {
                 const element = panel2[index];
+                
+                
                 if (element == letraUpper) {
                     panel3[index] = letraUpper
+                    
                 }
             }
-            panel.innerText = panel3.join().replaceAll(",", "")
+            panel.innerText = panel3.join("")
+
+            //numero de letras para puntuacion
+            const indices = []
+            const array = panel3
+            const element = letraUpper
+            let idx = array.indexOf(element);
+            while (idx !== -1) {
+            indices.push(idx);
+            idx = array.indexOf(element, idx + 1);
+            }
+            var numLetras = indices.length
+            //
 
             letraEncontrada = panel3.includes(letraUpper)
+            
             if (!letraEncontrada && !panel4.includes(letraUpper)) {
                 panel4.push(letraUpper)
             }
             letras.innerText = panel4
             letter.value = ""
-        })
 
+            console.log(numLetras*2)
+            
+        })
+        
+        
     </script>
 </body>
 
 </html>
 <style>
+    .container {
+        position: fixed;
+        padding: 20px;
+        width: 200px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, .6);
+        float: left;
+    }
+    
     .panel {
         letter-spacing: 15px;
     }
@@ -114,62 +348,247 @@
         margin: 0cm;
         padding: 10px;
         text-align: center;
+        align-self: center;
+        justify-self: center;
+        width: 95%;
+    }
+    dialog .wrapper {
+        position: relative;
+        align-self: center;
+        justify-self: center;
+        padding: 10px;
+        width: 100%;
     }
 
-    :root {
+    dialog[open]{
+        align-self: center;
+        justify-self: center;
+        align-content: center;
+        justify-content: center;
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, .6);
+        backdrop-filter: blur(10px);
+        background-color: transparent ;
+        scale: 1;
+        transition: scale .3s ease;
 
+        @starting-style{
+            scale: 0;
+        }
+    }
+    
+
+    dialog .guess:not(:focus) {
+      color: transparent;
+        text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+
+    dialog{
+        display: inline-flex;
+        white-space: nowrap;
+        width: 310px;
+        align-self: center;
+        justify-self: center;
+        border: none;
+        transition: scale .2s ease,
+            display .3s ease;
+        scale: 0;
+    }
+
+    label {
+        position: relative;
+        width: 40px;
+        height: 20px;
+        cursor: pointer;
+    }
+    input[type="checkbox"]{
+        display: none;
+    }
+    
+    input + label {
+        position: absolute;
+        display: flex-end;
+        justify-content: right;
+        justify-items: center;
+        transition: 0.1s all;
+        cursor: pointer;
+        z-index: 99 !important;
+    }
+    input + label:hover {
+        transform: scale(0.95);
+    }
+    input + label::after{
+        font: var(--fa-font-regular);
+        content: '\f06e';
+    }
+    input:checked + label {
+        transform: scale(1.1);
+    }
+
+    input:checked + label:hover{
+        transform: scale(1.05);
+    }
+    input:checked + label::after{
+        font: var(--fa-font-regular);
+        content: '\f070';
+    }
+    .btn {
+        max-width: 50%;
+        margin-top: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 10px;
+        color: rgb(26, 26, 26);
+        background: none;
+        border: 2px solid #000000;
+        border-radius: 8px;
+        cursor: pointer;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        
+    }
+    .liquidA {
+        background: linear-gradient(#000000 0 0) no-repeat calc(200% - var(--p, 0%))
+        100% / 200% var(--p, 0.2em);
+        transition: 0.3s var(--t, 0s),
+        background-position 0.3s calc(0.3s - var(--t, 0s));
+        
+    }
+
+    .liquidA:hover {
+        --p: 100%;
+        --t: 0.3s;
+        color: #fff;
+    }
+
+    .liquidC {
+        background: linear-gradient(#721717 0 0) no-repeat calc(200% - var(--p, 0%))
+        100% / 200% var(--p, 0.2em);
+        transition: 0.3s var(--t, 0s),
+        background-position 0.3s calc(0.3s - var(--t, 0s));
+    }
+    
+    .liquidC:hover {
+        --p: 100%;
+        --t: 0.3s;
+        color: #fff;
+    }
+
+    .liquidCF{
+            background: linear-gradient(#67a123 0 0) no-repeat calc(200% - var(--p, 0%))
+            100% / 200% var(--p, 0.2em);
+            transition: 0.3s var(--t, 0s),
+            background-position 0.3s calc(0.3s - var(--t, 0s));
+    }
+
+    .liquidCF:hover {
+        --p: 100%;
+        --t: 0.3s;
+        color: #000000;
+    }
+
+    
+
+    :root {
         background: linear-gradient(rgba(255, 255, 255, 0.652)),
             url(f.elconfidencial.com_original_070_d1c_c8c_070d1cc8cbb1b4dff05bfa590f937873.jpg);
         font-weight: bold;
         font-family: "Roboto";
+        justify-content: center;
     }
 
     .button1 {
+        display: inline-flex;
+        align-content: center;
+        justify-content: center;
+        width: 220px;
         margin-top: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, .6);
-        width: 25%;
+        font-weight: 600;
         padding: 15px;
-        background-color: transparent;
+        backdrop-filter: blur(10px);
+        color: rgb(26, 26, 26);
+        background: none;
+        border: 2px solid #000000;
+        cursor: pointer;
+        overflow: hidden;
+        transition: all 0.3s ease;
     }
 
-    .button1:hover {
-        background-color: rgba(15, 194, 39, 0.562);
+    .liquid1 {
+        background: linear-gradient(#c0ff79 0 0) no-repeat calc(200% - var(--p, 0%))
+        100% / 200% var(--p, 0.2em);
+        transition: 0.3s var(--t, 0s),
+        background-position 0.3s calc(0.3s - var(--t, 0s));
+    }
+    .liquid1:hover {
+        --p: 100%;
+        --t: 0.3s;
+        color: #000000;
+    }
+    .buttonEdit {
+        display: inline-flex;
+        align-content: center;
+        justify-content: center;
+        margin-top: 20px;
+        font-weight: 600;
+        padding: 15px;
+        backdrop-filter: blur(10px);
+        color: rgb(26, 26, 26);
+        background: none;
+        border: 2px solid #000000;
+        cursor: pointer;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .liquid2 {
+        background: linear-gradient(#79fff8 0 0) no-repeat calc(200% - var(--p, 0%))
+        100% / 200% var(--p, 0.2em);
+        transition: 0.3s var(--t, 0s),
+        background-position 0.3s calc(0.3s - var(--t, 0s));
+    }
+    .liquid2:hover {
+        --p: 100%;
+        --t: 0.3s;
+        color: #000000;
     }
 
     .button2 {
-        width: 15%;
-        padding: 10px;
-        margin-left: 15px;
+        width: 10%;
         background-color: transparent;
+        border-radius: 8px;
+    }
+    .buttonRes {
+        width: 10%;
+        background-color: transparent;
+        border-radius: 8px;
+        margin-top: 15px;
     }
 
     .button2:hover {
         background-color: rgba(15, 194, 39, 0.562);
     }
-
-    .form1 {
-        margin-top: 20px;
-        margin-bottom: 20px;
-        padding: 15px;
-        font-size: xx-large;
-        height: 25%;
-        display: flex;
+    
+    .formStart {
+        padding-top: 30px;
         justify-content: center;
+        align-items: center;
     }
+    
 
     .sin {
         visibility: hidden;
     }
-
+    
     .input-box {
-        font-size: xx-large;
-        margin-left: 15px;
+        margin-left: 20px;
+        margin-right: 20px;
+        height: 50%;
         border-bottom: 5% black;
         border-top: none;
         border-left: none;
         border-right: none;
         background-color: transparent;
+        
     }
 
     .panel {
@@ -177,12 +596,88 @@
         padding-left: 30px;
         padding-right: 30px;
     }
+    .letraDisp {
+        padding-top: 15%;
+        padding-bottom: 15%;
+    }
 
-    .letra5 {
+    .letraFail {
         font-size: 200%;
+        color: black;
+       
+    }
+
+    .letraPista {
+        font-size: 200%;
+        color: black;
     }
 
     .pista {
         font-size: 200%;
     }
+   /* .señorSaltimbanqui{
+        float: inline-end;
+        padding-left: 1000px;
+        padding-bottom: 350px;
+    }
+        */
+    
+    /*Ruleta*/
+    .pie {
+        display: grid;
+        margin: 1em;
+        width: 9em; /* set width to desired pie diameter */
+        aspect-ratio: 1; /* make element square */
+        font: 2em sans-serif;
+    }
+    .pie div{
+        display: grid;
+    }
+
+
+    .slice {
+        --u: calc(1turn/var(--s)); /* unit angle */
+        /* current slice rotation angle */
+        --ca: calc(var(--v)*var(--u));
+        /* current slice rotation angle */
+        --sa: calc((var(--i) + .5*var(--v)*min(1, var(--i)))*var(--u));
+        --dy: 50%*tan(.5*var(--ca)); /* half a slice height */
+        grid-area: 1/ 1; /* stack them all on top of each other */
+        place-content: center end; /* text at 3 o'clock pre rotation */
+        padding: 0.5rem; /* space from circle edge to text */
+        border-radius: 50%; /* turn square into disc */
+        transform: /* need rotation before translation */
+            rotate(calc(var(--sa))) 
+            /* non-zero only in hover case */
+            translate(calc(var(--hov, 0)*1em));
+        background: var(--c);
+        /* so hover is only triggered inside slice area */
+        clip-path: 
+            polygon(50% 50%, 
+                100% calc(50% - var(--dy)), 
+                100% calc(50% + var(--dy)));
+        transition: .3s;
+        
+        &:hover { --hov: 1 } /* flip hover flag */
+    }
+
+    .playerOnePoints {
+        display: inline-flex;
+        white-space: nowrap;
+    }
+    
+    .counter {
+        padding-left: 5px;
+        padding-right: 5px;
+        margin-left: 15px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, .6);
+        float: right;
+        border-radius: 5px;
+        text-align: center;
+        align-self: center;
+        justify-self: center;
+
+    }
+
 </style>
